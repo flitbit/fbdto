@@ -7,9 +7,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlitBit.Dto.Tests", "FlitBi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{69FD9AA5-9451-46F2-A4C9-AB01E914B750}"
 	ProjectSection(SolutionItems) = preProject
+		build.version = build.version
 		FlitBit.Dto.vsmdi = FlitBit.Dto.vsmdi
 		Local.testsettings = Local.testsettings
+		major.version = major.version
+		minor.version = minor.version
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3186A763-1CDB-4CF0-9982-0A2B40EBFBE8}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Global
