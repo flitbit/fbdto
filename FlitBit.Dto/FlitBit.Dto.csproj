@@ -93,15 +93,16 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\FlitBit.Core.2.4.9.20309\lib\net40\FlitBit.Core.dll</HintPath>
     </Reference>
-    <Reference Include="FlitBit.Emit, Version=2.5.1.43340, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="FlitBit.Emit, Version=2.5.2.26027, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\FlitBit.Emit.2.5.1.43340\lib\net40\FlitBit.Emit.dll</HintPath>
+      <HintPath>..\packages\FlitBit.Emit.2.5.2.26027\lib\net40\FlitBit.Emit.dll</HintPath>
     </Reference>
     <Reference Include="FlitBit.Validation">
       <HintPath>..\packages\FlitBit.Validation.0.7.2.55079\lib\net40\FlitBit.Validation.dll</HintPath>
     </Reference>
-    <Reference Include="FlitBit.Wireup">
-      <HintPath>..\packages\FlitBit.Wireup.2.4.0.35609\lib\net40\FlitBit.Wireup.dll</HintPath>
+    <Reference Include="FlitBit.Wireup, Version=2.5.0.25837, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\FlitBit.Wireup.2.5.0.25837\lib\net40\FlitBit.Wireup.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -109,7 +110,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -122,13 +122,13 @@
     <Compile Include="DataTransferObject.T.cs" />
     <Compile Include="DataTransferObject.T.spi.cs" />
     <Compile Include="DTOAttribute.cs" />
-    <Compile Include="DtoFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Wireup.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FlitBit.Dto.nuspec" />
