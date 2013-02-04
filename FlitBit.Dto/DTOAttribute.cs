@@ -3,9 +3,8 @@
 #endregion
 
 using System;
-using FlitBit.Core.Representation;
-using FlitBit.IoC;
-using FlitBit.IoC.Stereotype;
+using FlitBit.Core.Meta;
+using FlitBit.Emit.Meta;
 
 namespace FlitBit.Dto
 {
@@ -14,38 +13,26 @@ namespace FlitBit.Dto
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
 	[CLSCompliant(false)]
-	public class DTOAttribute : StereotypeAttribute
+	public class DTOAttribute : AutoImplementedAttribute
 	{
 		/// <summary>
 		/// Creates a new instance.
 		/// </summary>
 		public DTOAttribute()
-			: base(StereotypeBehaviors.AutoImplementedBehavior)
 		{
+			this.RecommemdedScope = InstanceScopeKind.OnDemand;
 		}
+
 
 		/// <summary>
 		/// Implements the stereotypical DTO behavior for interfaces of type T.
 		/// </summary>
-		/// <typeparam name="T">interface type T</typeparam>
-		/// <returns>concrete implementation implementing the 
-		/// stereotypical DTO behavior</returns>
-		public override bool RegisterStereotypeImplementation<T>(IoC.IContainer container)
+		/// <typeparam name="T">target type T</typeparam>
+		/// <param name="complete">callback invoked with the implementation type or the type's factory function.</param>
+		/// <returns><em>true</em> if the DTO was generated; otherwise <em>false</em>.</returns>
+		public override bool GetImplementation<T>(Action<Type, Func<T>> complete)
 		{
-			RequireTypeIsInterface<T>();
-
-			Type concreteType = DataTransfer.ConcreteType<T>();
-			Type jsonRepresentation = typeof(DelegatedJsonRepresentationLoose<,>).MakeGenericType(typeof(T), concreteType);
-
-			Container.Root.ForType<T>()
-				.Register(concreteType)
-				.ResolveAnInstancePerRequest()
-				.End()
-			.ForType<IJsonRepresentation<T>>()
-				.Register(jsonRepresentation)
-				.ResolveAnInstancePerScope()
-				.End();
-
+			complete(DataTransfer.ConcreteType<T>(), null);
 			return true;
 		}
 	}

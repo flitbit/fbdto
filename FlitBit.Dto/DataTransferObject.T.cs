@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics.Contracts;
 using FlitBit.Dto.Properties;
 using FlitBit.Dto.SPI;
-using FlitBit.IoC;
 using FlitBit.Validations;
 
 namespace FlitBit.Dto
@@ -35,38 +34,7 @@ namespace FlitBit.Dto
 		{
 			if (!_writable) throw new InvalidOperationException(Resources.Chk_DataTransferObjectsAreImmutable);
 		}
-
-		internal static T Mutate(IContainer container, T source, Action<T> mutator)
-		{
-			T result = container.NewImplementationOf<T>(LifespanTracking.Automatic, DataTransfer.ConcreteType<T>());
-			var dto = source as DataTransferObject<T>;
-			if (dto != null)
-			{
-				((IDataTransferObjectSPI<T>)result).CopyState(dto);
-			}
-			else
-			{
-				((IDataTransferObjectSPI<T>)result).CopySource(source);
-			}
-			mutator(result);
-			return result;
-		}
-
-		internal static T Copy(IContainer container, T source)
-		{
-			T result = container.NewImplementationOf<T>(LifespanTracking.Automatic, DataTransfer.ConcreteType<T>());
-			var dto = source as DataTransferObject<T>;
-			if (dto != null)
-			{
-				((IDataTransferObjectSPI<T>)result).CopyState(dto);
-			}
-			else
-			{
-				((IDataTransferObjectSPI<T>)result).CopySource(source);
-			}
-			return result;
-		}
-
+			
 		/// <summary>
 		/// Determines validity of user input.
 		/// </summary>

@@ -38,7 +38,7 @@ namespace FlitBit.Core.Tests.Dto
 				for (int i = 0; i < test.ItemsToCreate; i++)
 				{
 					var previous = my;
-					my = create.DtoCopy<IJustAnID>(my);
+					my = create.New<IJustAnID>();
 
 					Assert.IsNotNull(my);
 					Assert.AreNotSame(previous, my);
@@ -56,8 +56,7 @@ namespace FlitBit.Core.Tests.Dto
 			using (var create = Create.NewContainer())
 			{
 				// our mutator method... it will set the ID's value...
-				Action<IJustAnID> setter = (IJustAnID item) => { item.ID = Interlocked.Increment(ref id); };
-				var my = create.Mutation(create.New<IJustAnID>(), setter);
+				var my = create.NewInit<IJustAnID>().Init(new { ID = Interlocked.Increment(ref id) });
 				Assert.IsNotNull(my);
 				Assert.AreEqual(id, my.ID);
 
@@ -66,7 +65,7 @@ namespace FlitBit.Core.Tests.Dto
 				for (int i = 0; i < test.ItemsToMutate; i++)
 				{
 					var previous = my;
-					my = create.Mutation(my, setter);
+					my = create.NewInit<IJustAnID>().Init(new { ID = Interlocked.Increment(ref id) });
 
 					Assert.IsNotNull(my);
 					Assert.AreNotSame(previous, my);
@@ -75,7 +74,7 @@ namespace FlitBit.Core.Tests.Dto
 				Console.WriteLine(String.Concat("Mutated ", test.ItemsToMutate, " Dto instances in ", time.Elapsed));
 			}
 		}
-		
+
 		[TestMethod]
 		public void DtoSupportsAllNativeTypeProperties()
 		{
@@ -90,7 +89,7 @@ namespace FlitBit.Core.Tests.Dto
 				Assert.IsNotNull(my);
 
 				// Mutate one property per mutation...
-				var mutator = new Action<IAllNativeTypes>((IAllNativeTypes item) =>
+				Func<IContainer, IAllNativeTypes, IAllNativeTypes> mutator = (c, item) =>
 				{
 					Assert.AreEqual(my, item, "mutated copy should always be equal to source upon mutator call");
 					switch (mutation)
@@ -293,7 +292,8 @@ namespace FlitBit.Core.Tests.Dto
 								}
 							} break;
 					}
-				});
+					return item;
+				};
 
 				Stopwatch time = new Stopwatch();
 				time.Start();
@@ -302,7 +302,7 @@ namespace FlitBit.Core.Tests.Dto
 					var previous = my;
 					mutation = i % 16; // cycle through the mutations
 
-					my = create.Mutation(my, mutator);
+					my = create.Mutate(my, mutator);
 
 					Assert.IsNotNull(my);
 					Assert.AreNotSame(previous, my);
@@ -678,39 +678,6 @@ namespace FlitBit.Core.Tests.Dto
 			}
 		}
 
-		public class MyService
-		{
-			public IThing NameTheThing(IThing thing)
-			{
-				Assert.IsNotNull(thing);
-
-				using (var create = Create.SharedOrNewContainer())
-				{
-					return create.Mutation<IThing>(thing, th => { th.Name = String.Concat("My Name is :", th.Identity); });
-				}
-			}
-		}
-
-		[TestMethod]
-		public void MyServiceCanNameTheThing()
-		{
-			var seed = 0;
-
-			using (var create = Create.SharedOrNewContainer())
-			{
-				create.Subscribe<IThing>((t, item, name, kind) => { item.Identity = Interlocked.Increment(ref seed); });
-
-				var svc = create.New<MyService>();
-
-				var orig = create.New<IThing>();
-				Assert.IsNotNull(orig);
-				Assert.IsTrue(orig.Identity > 0);
-
-				var other = svc.NameTheThing(orig);
-				Assert.AreNotSame(orig, other);
-				Assert.AreEqual(orig.Identity, other.Identity);
-				Assert.AreNotEqual(orig.Name, other.Name);
-			}
-		}		
 	}
+		
 }

@@ -34,7 +34,7 @@ namespace FlitBit.Dto.Tests
 				Assert.IsNotNull(my);
 
 				// Mutate one property per mutation...
-				var mutator = new Action<IAllNativeTypes>((IAllNativeTypes item) =>
+				Func<IContainer, IAllNativeTypes, IAllNativeTypes> mutator = (IContainer c, IAllNativeTypes item) =>
 				{
 					Assert.AreEqual(my, item, "mutated copy should always be equal to source upon mutator call");
 					switch (mutation)
@@ -237,7 +237,8 @@ namespace FlitBit.Dto.Tests
 								}
 							} break;
 					}
-				});
+					return item;
+				};
 								
 				Stopwatch time = new Stopwatch();
 				time.Start();
@@ -245,8 +246,7 @@ namespace FlitBit.Dto.Tests
 				{
 					var previous = my;
 					mutation = i % 16; // cycle through the mutations
-
-					my = create.Mutation(my, mutator);
+					my = create.Mutate(my, mutator);
 
 					Assert.IsNotNull(my);
 					Assert.AreNotSame(previous, my);
