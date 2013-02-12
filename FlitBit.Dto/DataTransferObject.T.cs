@@ -6,7 +6,7 @@ using System;
 using System.Diagnostics.Contracts;
 using FlitBit.Dto.Properties;
 using FlitBit.Dto.SPI;
-using FlitBit.Validations;
+using FlitBit.Core;
 
 namespace FlitBit.Dto
 {
@@ -15,9 +15,19 @@ namespace FlitBit.Dto
 	/// </summary>
 	/// <typeparam name="T">interface type T</typeparam>
 	[Serializable]
-	public abstract partial class DataTransferObject<T> : IUserInput
+	public abstract partial class DataTransferObject<T> : IEquatable<T>
 	{
-		bool _writable = true;
+		static readonly int CHashCodeSeed = typeof(DataTransferObject<T>).AssemblyQualifiedName.GetHashCode();
+		bool _writable;
+
+		/// <summary>
+		/// Creates an instance.
+		/// </summary>
+		/// <param name="writable">indicates whether the instance is writable</param>
+		protected DataTransferObject(bool writable)
+		{
+			_writable = writable;
+		}
 
 		/// <summary>
 		/// Called by the framework to mark an DataTransferObject as readonly.
@@ -34,25 +44,44 @@ namespace FlitBit.Dto
 		{
 			if (!_writable) throw new InvalidOperationException(Resources.Chk_DataTransferObjectsAreImmutable);
 		}
-			
+		
 		/// <summary>
-		/// Determines validity of user input.
+		/// Compares this object to another for equality.
 		/// </summary>
-		/// <param name="collector">collector for input errors</param>
-		/// <returns><em>true</em> if successfully validated without errors; otherwise <em>false</em></returns>
-		public bool IsValidUserInput(IUserInputErrorCollector collector)
+		/// <param name="obj"></param>
+		/// <returns></returns>
+		public override bool Equals(object obj)
 		{
-			return PerformIsValidUserInput(collector);
+			return obj is T && PerformEqual((T)obj);
 		}
 
 		/// <summary>
-		/// Callback method for subclasses to determine validity of user input.
+		/// Calcuates the object's hashcode.
 		/// </summary>
-		/// <param name="collector">collector for input errors</param>
-		/// <returns><em>true</em> if successfully validated without errors; otherwise <em>false</em></returns>
-		protected virtual bool PerformIsValidUserInput(IUserInputErrorCollector collector)
+		/// <returns></returns>
+		public override int GetHashCode()
 		{
-			return true;
+			int prime = Constants.NotSoRandomPrime;
+			var res = CHashCodeSeed * prime;
+			res ^= (_writable ? 0 : 1) * prime;
+			return res;
 		}
+		
+		/// <summary>
+		/// Compares this object to another for equality.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public bool Equals(T other)
+		{
+			return other != null && PerformEqual(other);
+		}
+
+		/// <summary>
+		/// Specialized by implementations to compare another object for equality.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		protected abstract bool PerformEqual(T other);
 	}	
 }

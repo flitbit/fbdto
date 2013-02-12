@@ -36,6 +36,25 @@ namespace FlitBit.Dto.Tests
 				// Mutate one property per mutation...
 				Func<IContainer, IAllNativeTypes, IAllNativeTypes> mutator = (IContainer c, IAllNativeTypes item) =>
 				{
+					Assert.AreEqual(my.Byte, item.Byte);
+					Assert.AreEqual(my.Boolean, item.Boolean);
+					Assert.AreEqual(my.Char, item.Char);
+					Assert.AreEqual(my.Double, item.Double);
+					Assert.AreEqual(my.Decimal, item.Decimal);
+					Assert.AreEqual(my.Float, item.Float);
+					Assert.AreEqual(my.MyEnum, item.MyEnum);
+					Assert.AreEqual(my.Guid, item.Guid);
+					Assert.AreEqual(my.String, item.String);
+					Assert.AreEqual(my.SByte, item.SByte);
+					Assert.AreEqual(my.Int16, item.Int16);
+					Assert.AreEqual(my.Int32, item.Int32);
+					Assert.AreEqual(my.Int64, item.Int64);
+					Assert.AreEqual(my.UInt16, item.UInt16);
+					Assert.AreEqual(my.UInt32, item.UInt32);
+					Assert.AreEqual(my.UInt64, item.UInt64);
+					Assert.AreEqual(my.NullableInt32, item.NullableInt32);
+					Assert.IsTrue(my.Int32Arr.EqualsOrItemsEqual(item.Int32Arr));
+							
 					Assert.AreEqual(my, item, "mutated copy should always be equal to source upon mutator call");
 					switch (mutation)
 					{

@@ -307,8 +307,8 @@ namespace FlitBit.Core.Tests.Dto
 					Assert.IsNotNull(my);
 					Assert.AreNotSame(previous, my);
 					Assert.AreNotEqual(previous, my);
-					// hash collision is indeed possible, encountered about every 500k items during testing.
-					//Assert.AreNotEqual(previous.GetHashCode(), my.GetHashCode());
+					// hash collision is indeed possible here, although rarely encountered during testing.
+					Assert.AreNotEqual(previous.GetHashCode(), my.GetHashCode());
 
 					switch (mutation)
 					{

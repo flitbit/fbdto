@@ -73,14 +73,23 @@ namespace FlitBit.Dto
 			cctor.ContributeInstructions((m, il) =>
 			{
 				il.LoadType(builder.Builder);
-				il.Call(typeof(TypeLocks).GetMethod("GetKeyForType"));
+				il.CallVirtual(typeof(Type).GetProperty("AssemblyQualifiedName").GetGetMethod());
 				il.CallVirtual<object>("GetHashCode");
 				il.StoreField(chashCodeSeed);
 			});
-			builder.DefineDefaultCtor();
-
 			var dataType = BackingDataType<T>();
 			var data = builder.DefineField("_data", dataType);
+
+			builder.DefineDefaultCtor().ContributeInstructions((m, il) =>
+			{
+				il.LoadArg_0();
+				il.Call(dataType.GetMethod("Create", BindingFlags.Static | BindingFlags.NonPublic));
+				il.StoreField(data);
+				il.LoadArg_0();
+				il.LoadValue(true);
+				il.Call(typeof(DataTransferObject<T>).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[] { typeof(bool) }, null));
+				il.Nop();
+			});
 
 			foreach (var intf in from type in typeof(T).GetTypeHierarchyInDeclarationOrder()
 													 where type.IsInterface
@@ -90,7 +99,7 @@ namespace FlitBit.Dto
 				ImplementPropertiesForInterface(intf, builder, data, dataType);
 				builder.StubMethodsForInterface(intf, true, true);
 			}
-			ImplementSpecializedEquals(builder, data, dataType);
+			ImplementSpecializedPerformEquals<T>(builder, data, dataType);
 			ImplementSpecializedGetHashCode(builder, data, dataType, chashCodeSeed);
 			ImplementCopyState<T>(builder, data, dataType);
 			ImplementCopySource<T>(builder, data, dataType);
@@ -114,7 +123,7 @@ namespace FlitBit.Dto
 			var fieldName = property.FormatBackingFieldName();
 			var backingField = dataType.GetField(fieldName);
 
-			prop.AddGetter(property.GetGetMethod()).ContributeInstructions((m, il) =>
+			prop.AddGetter().ContributeInstructions((m, il) =>
 			{
 				il.LoadArg_0();
 				il.LoadFieldAddress(data);
@@ -122,7 +131,7 @@ namespace FlitBit.Dto
 			});
 			if (property.CanWrite)
 			{
-				prop.AddSetter(property.GetSetMethod()).ContributeInstructions((m, il) =>
+				prop.AddSetter().ContributeInstructions((m, il) =>
 				{
 					il.Nop();
 					il.LoadArg_0();
@@ -131,7 +140,8 @@ namespace FlitBit.Dto
 					il.LoadArg_0();
 					il.LoadFieldAddress(data);
 					il.LoadArg_1();
-					il.StoreField(backingField);
+					il.Call(dataType.GetMethod(String.Concat("Write", fieldName), BindingFlags.Instance | BindingFlags.Public, null, new Type[] { prop.TargetType }, null));
+					il.Pop();
 				});
 			}
 		}
@@ -141,7 +151,7 @@ namespace FlitBit.Dto
 			/*
 			protected override void PerformCopyState(DataTransferObject<T> other) {
 				if (other is <subtype>) {
-					this._data = ((<subtyle>)other)._data;
+					this._data = ((<subtyle>)other)._data.Copy();
 				}
 			}			 
 			*/
@@ -169,7 +179,8 @@ namespace FlitBit.Dto
 				il.Nop();
 				il.LoadArg_0();
 				il.LoadLocal_0();
-				il.LoadField(data);
+				il.LoadFieldAddress(data);
+				il.Call(dataType.GetMethod("Copy", BindingFlags.Static | BindingFlags.NonPublic));
 				il.StoreField(data);
 				il.MarkLabel(exit);
 			});
@@ -208,60 +219,44 @@ namespace FlitBit.Dto
 			});
 		}
 
-		static void ImplementSpecializedEquals(EmittedClass builder, EmittedField data, Type dataType)
+		static void ImplementSpecializedPerformEquals<T>(EmittedClass builder, EmittedField data, Type dataType)
 		{
 			Contract.Requires(builder != null);
 			Contract.Requires(data != null);
 			Contract.Requires(dataType != null);
 
-			Type equatable = typeof(IEquatable<>).MakeGenericType(builder.Builder);
-			builder.AddInterfaceImplementation(equatable);
-
-			var specialized_equals = builder.DefineMethod("Equals");
-			specialized_equals.ClearAttributes();
-			specialized_equals.IncludeAttributes(MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual);
-			specialized_equals.ReturnType = TypeRef.FromType<bool>();
-			specialized_equals.DefineParameter("other", builder.Ref);
-
+			var baseType = typeof(DataTransferObject<T>);
+			var baseMethod = baseType.GetMethod("PerformEqual", BindingFlags.NonPublic | BindingFlags.Instance);
+			
+			var specialized_equals = builder.DefineOverrideMethod(baseMethod);
+			
 			specialized_equals.ContributeInstructions((m, il) =>
 			{
 				var exitFalse = il.DefineLabel();
 				var exit = il.DefineLabel();
 
+				il.DeclareLocal(builder.Builder);
 				il.DeclareLocal(typeof(bool));
+				il.LoadArg_1();
+				il.IsInstance(builder.Builder);
+				il.StoreLocal_0();
+				il.LoadArg_1();
+				il.BranchIfFalse_ShortForm(exitFalse);
+
 				il.LoadArg_0();
 				il.LoadFieldAddress(data);
-				il.LoadArg_1();
+				il.LoadLocal_0();
 				il.LoadField(data);
 				il.Call(dataType.GetMethod("Equals", new Type[] { dataType }));
-				il.StoreLocal_0();
-				il.DefineAndMarkLabel();
-				il.LoadLocal_0();
-			});
+				il.Branch_ShortForm(exit);
 
-			builder.DefineOverrideMethod(typeof(object).GetMethod("Equals", BindingFlags.Instance | BindingFlags.Public, null, new Type[] { typeof(object) }, null))
-				.ContributeInstructions((m, il) =>
-				{
-					var exitFalse = il.DefineLabel();
-					var exit = il.DefineLabel();
-					il.DeclareLocal(typeof(bool));
-					il.LoadToken(builder.Builder);
-					il.Call<Type>("GetTypeFromHandle", BindingFlags.Public | BindingFlags.Static, typeof(RuntimeTypeHandle));
-					il.LoadArg_1();
-					il.CallVirtual<Type>("IsInstanceOfType");
-					il.BranchIfFalse(exitFalse);
-					il.LoadArg_0();
-					il.LoadArg_1();
-					il.CastClass(builder.Builder);
-					il.Call(specialized_equals);
-					il.Branch(exit);
-					il.MarkLabel(exitFalse);
-					il.LoadValue(false);
-					il.MarkLabel(exit);
-					il.StoreLocal_0();
-					il.DefineAndMarkLabel();
-					il.LoadLocal_0();
-				});
+				il.MarkLabel(exitFalse);
+				il.LoadValue(false);
+				il.MarkLabel(exit);
+				il.StoreLocal_1();
+				il.DefineAndMarkLabel();
+				il.LoadLocal_1();
+			});			
 		}
 
 		static EmittedMethod ImplementSpecializedGetHashCode(EmittedClass builder, EmittedField data, Type dataType, EmittedField chashCodeSeed)
@@ -271,7 +266,8 @@ namespace FlitBit.Dto
 			Contract.Requires<ArgumentNullException>(chashCodeSeed != null);
 			Contract.Requires<ArgumentNullException>(dataType != null);
 
-			var method = builder.DefineOverrideMethod(typeof(Object).GetMethod("GetHashCode", BindingFlags.Instance | BindingFlags.Public));
+			var baseMethod = builder.Builder.BaseType.GetMethod("GetHashCode", BindingFlags.Instance | BindingFlags.Public);
+			var method = builder.DefineOverrideMethod(baseMethod);
 			method.ContributeInstructions((m, il) =>
 			{
 				var prime = il.DeclareLocal(typeof(Int32));
@@ -286,11 +282,18 @@ namespace FlitBit.Dto
 				il.Multiply();
 				il.StoreLocal(result);
 				il.LoadLocal(result);
+				il.LoadArg_0();
+				il.Call(baseMethod);
 				il.LoadLocal(prime);
+				il.Multiply();
+				il.Xor();
+				il.StoreLocal(result);
+				il.LoadLocal(result);
 				il.LoadArg_0();
 				il.LoadFieldAddress(data);
 				il.Constrained(dataType);
 				il.CallVirtual<object>("GetHashCode");
+				il.LoadLocal(prime);
 				il.Multiply();
 				il.Xor();
 				il.StoreLocal(result);
@@ -352,7 +355,7 @@ namespace FlitBit.Dto
 			cctor.ContributeInstructions((m, il) =>
 			{
 				il.LoadType(builder.Builder);
-				il.Call(typeof(TypeLocks).GetMethod("GetKeyForType"));
+				il.CallVirtual(typeof(Type).GetProperty("AssemblyQualifiedName").GetGetMethod());
 				il.CallVirtual<object>("GetHashCode");
 				il.StoreField(chashCodeSeed);
 			});
@@ -368,13 +371,74 @@ namespace FlitBit.Dto
 			{
 				AddFieldsForPropertyValues(builder, intf, dirtyFlagsField, ref fieldIndex);
 			}
-			var equality = ImplementSpecializedDataTypeEquals(builder);
-			ImplementSpecializedDataTypeGetHashCode(builder, chashCodeSeed);
+			var equality = ImplementSpecializedDataTypeEquals(builder, dirtyFlagsField);
+			ImplementSpecializedDataTypeGetHashCode(builder, chashCodeSeed, dirtyFlagsField);
+			ImplementStaticCreate(builder, dirtyFlagsField);
+			ImplementStaticCopy(builder, dirtyFlagsField);
 			ImplementEqualityOperators(builder, equality);
 			ImplementInequalityOperators(builder, equality);
 
 			builder.Compile();
 			return builder.Ref.Target;
+		}
+
+		private static void ImplementStaticCopy(EmittedClass builder, EmittedField dirtyFlagsField)
+		{
+			var copy = builder.DefineMethod("Copy");
+			copy.ReturnType = builder.Ref;
+			copy.ClearAttributes();
+			copy.IncludeAttributes(MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.Assembly);
+			copy.ContributeInstructions((m, il) =>
+			{
+				il.DeclareLocal(builder.Builder);
+				il.DeclareLocal(builder.Builder);		
+				il.Nop();
+				il.LoadLocalAddressShort(0);
+				il.InitObject(builder.Builder);
+				il.LoadLocalAddressShort(0);
+				il.LoadValue(builder.Fields.Count() - 1);
+				il.New<BitVector>(typeof(int));
+				il.StoreField(dirtyFlagsField);
+				foreach (var fld in builder.Fields)
+				{
+					if (fld.Name != dirtyFlagsField.Name)
+					{
+						// if cloneable, do so...
+						if (typeof(ICloneable).IsAssignableFrom(fld.TargetType))
+						{
+
+						}
+					}	
+				}
+				il.LoadLocal_0();
+				il.StoreLocal_1();
+				il.DefineAndMarkLabel();
+				il.LoadLocal_1();
+			});
+		}
+
+		private static void ImplementStaticCreate(EmittedClass builder, EmittedField dirtyFlagsField)
+		{
+			var copy = builder.DefineMethod("Create");
+			copy.ReturnType = builder.Ref;
+			copy.ClearAttributes();
+			copy.IncludeAttributes(MethodAttributes.Static | MethodAttributes.HideBySig | MethodAttributes.Assembly);
+			copy.ContributeInstructions((m, il) =>
+			{
+				il.DeclareLocal(builder.Builder);
+				il.DeclareLocal(builder.Builder);
+				il.Nop();
+				il.LoadLocalAddressShort(0);
+				il.InitObject(builder.Builder);
+				il.LoadLocalAddressShort(0);
+				il.LoadValue(builder.Fields.Count() - 1);
+				il.New<BitVector>(typeof(int));
+				il.StoreField(dirtyFlagsField);				
+				il.LoadLocal_0();
+				il.StoreLocal_1();
+				il.DefineAndMarkLabel();
+				il.LoadLocal_1();
+			});
 		}
 
 		static void AddFieldsForPropertyValues(EmittedClass builder, Type intf, EmittedField dirtyFlags, ref int fieldIndex)
@@ -473,7 +537,7 @@ namespace FlitBit.Dto
 			il.LoadArg_1();
 		}
 
-		static EmittedMethod ImplementSpecializedDataTypeGetHashCode(EmittedClass builder, EmittedField chashCodeSeed)
+		static EmittedMethod ImplementSpecializedDataTypeGetHashCode(EmittedClass builder, EmittedField chashCodeSeed, EmittedField dirtyFlagsField)
 		{
 			Contract.Requires<ArgumentNullException>(builder != null);
 
@@ -492,7 +556,7 @@ namespace FlitBit.Dto
 					il.Multiply();
 					il.StoreLocal(result);
 					var exit = il.DefineLabel();
-					var fields = new List<EmittedField>(builder.Fields.Where(f => f.IsStatic == false));
+					var fields = new List<EmittedField>(builder.Fields.Where(f => f.IsStatic == false && f.Name != dirtyFlagsField.Name));
 					for (int i = 0; i < fields.Count; i++)
 					{
 						var field = fields[i];
@@ -603,7 +667,15 @@ namespace FlitBit.Dto
 									il.LoadLocal(result);
 									il.LoadLocal(prime);
 									il.LoadArg_0();
-									il.LoadField(field);
+									if (fieldType.IsValueType)
+									{
+										il.LoadFieldAddress(field);
+										il.Constrained(fieldType);
+									}
+									else
+									{
+										il.LoadField(field);
+									}
 									il.CallVirtual<object>("GetHashCode");
 									il.Multiply();
 									il.Xor();
@@ -613,11 +685,13 @@ namespace FlitBit.Dto
 							case TypeCode.String:
 								il.LoadArg_0();
 								il.LoadField(field);
-								il.Call<string>("IsNullOrEmpty");
-								il.StoreLocal_3();
-								il.LoadLocal_3();
+								il.LoadNull();
+								il.CompareEqual();
+								il.StoreLocal_2();
+								il.LoadLocal_2();
 								var lbl = il.DefineLabel();
 								il.BranchIfTrue_ShortForm(lbl);
+								il.Nop();
 								il.LoadLocal(result);
 								il.LoadLocal(prime);
 								il.LoadArg_0();
@@ -652,7 +726,7 @@ namespace FlitBit.Dto
 			return method;
 		}
 
-		static EmittedMethod ImplementSpecializedDataTypeEquals(EmittedClass builder)
+		static EmittedMethod ImplementSpecializedDataTypeEquals(EmittedClass builder, EmittedField dirtyFlagsField)
 		{
 			Contract.Requires<ArgumentNullException>(builder != null);
 
@@ -673,7 +747,7 @@ namespace FlitBit.Dto
 				exitFalse = il.DefineLabel();
 				il.Nop();
 
-				var fields = new List<EmittedField>(builder.Fields.Where(f => f.IsStatic == false));
+				var fields = new List<EmittedField>(builder.Fields.Where(f => f.IsStatic == false && f.Name != dirtyFlagsField.Name));
 				for (int i = 0; i < fields.Count; i++)
 				{
 					var field = fields[i];

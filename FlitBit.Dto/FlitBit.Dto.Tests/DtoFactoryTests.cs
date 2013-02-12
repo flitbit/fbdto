@@ -26,7 +26,7 @@ namespace FlitBit.Dto.Tests
 		[TestMethod]
 		public void DtoFactory_CanCreateInstances()
 		{
-			var factory = FactoryFactory.Instance;
+			var factory = FactoryProvider.Factory;
 			var it = factory.CreateInstance<IJustAnID>();
 			Assert.IsNotNull(it);
 		}

@@ -4,7 +4,8 @@
 
 using System;
 using FlitBit.Core.Meta;
-using FlitBit.Emit.Meta;
+using FlitBit.Meta;
+using FlitBit.Core.Factory;
 
 namespace FlitBit.Dto
 {
@@ -21,19 +22,23 @@ namespace FlitBit.Dto
 		public DTOAttribute()
 		{
 			this.RecommemdedScope = InstanceScopeKind.OnDemand;
-		}
-
+		}																													 
 
 		/// <summary>
 		/// Implements the stereotypical DTO behavior for interfaces of type T.
 		/// </summary>
 		/// <typeparam name="T">target type T</typeparam>
-		/// <param name="complete">callback invoked with the implementation type or the type's factory function.</param>
+		/// <param name="factory">the requesting factory</param>
+		/// <param name="complete">callback invoked with the implementation type or the type's factory function.</param> 
 		/// <returns><em>true</em> if the DTO was generated; otherwise <em>false</em>.</returns>
-		public override bool GetImplementation<T>(Action<Type, Func<T>> complete)
+		public override bool GetImplementation<T>(IFactory factory, Action<Type, Func<T>> complete)
 		{
-			complete(DataTransfer.ConcreteType<T>(), null);
-			return true;
+			if (typeof(T).IsDefined(typeof(DTOAttribute), true))
+			{
+				complete(DataTransfer.ConcreteType<T>(), null);
+				return true;
+			}
+			return false;
 		}
 	}
 }
