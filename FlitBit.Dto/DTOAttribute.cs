@@ -4,7 +4,6 @@
 
 using System;
 using FlitBit.Core.Meta;
-using FlitBit.Meta;
 using FlitBit.Core.Factory;
 
 namespace FlitBit.Dto

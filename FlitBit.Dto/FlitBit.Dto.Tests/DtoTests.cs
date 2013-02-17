@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using FlitBit.Dto;
 using FlitBit.Dto.Tests.Model;
 using FlitBit.IoC;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
