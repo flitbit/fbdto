@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FlitBit.Wireup;
 using FlitBit.Core;
 using FlitBit.Emit;
+using FlitBit.Wireup;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlitBit.Dto.Tests
 {
@@ -19,17 +16,10 @@ namespace FlitBit.Dto.Tests
 	[TestClass]
 	public class DtoHashCodeAndEqualityTests
 	{
-		[TestInitialize]
-		public void Init()
-		{
-			RuntimeAssemblies.WriteDynamicAssemblyOnExit = true;
-			WireupCoordinator.SelfConfigure();
-		}
-
 		[TestMethod]
 		public void Dto_DtosWithEqualPropertyValuesEvaluateEqual()
 		{
-			Random rand = new Random();
+			var rand = new Random();
 			int i;
 			string s;
 
@@ -54,6 +44,13 @@ namespace FlitBit.Dto.Tests
 
 			Assert.AreEqual(orig, other);
 			Assert.AreEqual(orig.GetHashCode(), other.GetHashCode());
+		}
+
+		[TestInitialize]
+		public void Init()
+		{
+			RuntimeAssemblies.WriteDynamicAssemblyOnExit = true;
+			WireupCoordinator.SelfConfigure();
 		}
 	}
 }

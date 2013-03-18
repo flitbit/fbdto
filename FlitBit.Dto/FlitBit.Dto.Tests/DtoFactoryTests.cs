@@ -6,21 +6,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace FlitBit.Dto.Tests
 {
 	/// <summary>
-	/// Summary description for DtoFactoryTests
+	///   Summary description for DtoFactoryTests
 	/// </summary>
 	[TestClass]
 	public class DtoFactoryTests
 	{
-		[TestInitialize]
-		public void Init()
-		{
-			WireupCoordinator.SelfConfigure();
-		}
-
 		/// <summary>
-		///Gets or sets the test context which provides
-		///information about and functionality for the current test run.
-		///</summary>
+		///   Gets or sets the test context which provides
+		///   information about and functionality for the current test run.
+		/// </summary>
 		public TestContext TestContext { get; set; }
 
 		[TestMethod]
@@ -29,6 +23,12 @@ namespace FlitBit.Dto.Tests
 			var factory = FactoryProvider.Factory;
 			var it = factory.CreateInstance<IJustAnID>();
 			Assert.IsNotNull(it);
+		}
+
+		[TestInitialize]
+		public void Init()
+		{
+			WireupCoordinator.SelfConfigure();
 		}
 	}
 }

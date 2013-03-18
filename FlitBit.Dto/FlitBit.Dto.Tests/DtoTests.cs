@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using FlitBit.Dto.Tests.Model;
+using FlitBit.Emit;
 using FlitBit.IoC;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,10 +12,51 @@ namespace FlitBit.Core.Tests.Dto
 	public class DtoTests
 	{
 		[TestMethod]
+		public void CanConstructAndMutateDTO()
+		{
+			var test = new
+			{
+				ItemsToMutate = 1000000
+			};
+			var id = -1;
+			using (var create = Create.NewContainer())
+			{
+				// our mutator method... it will set the ID's value...
+				var my = create.NewInit<IJustAnID>()
+											.Init(new
+											{
+												ID = Interlocked.Increment(ref id)
+											});
+				Assert.IsNotNull(my);
+				Assert.AreEqual(id, my.ID);
+
+				var time = new Stopwatch();
+				time.Start();
+				for (var i = 0; i < test.ItemsToMutate; i++)
+				{
+					var previous = my;
+					my = create.NewInit<IJustAnID>()
+										.Init(new
+										{
+											ID = Interlocked.Increment(ref id)
+										});
+
+					Assert.IsNotNull(my);
+					Assert.AreNotSame(previous, my);
+					Assert.AreEqual(id, my.ID);
+				}
+				Console.WriteLine(String.Concat("Mutated ", test.ItemsToMutate, " Dto instances in ", time.Elapsed));
+			}
+		}
+
+		[TestMethod]
 		public void ContainerCanConstructInterfaceMarkedAsDTO()
 		{
-			var test = new { ItemsToCreate = 1000000 };
-			int id = -1;
+			var test = new
+			{
+				ItemsToCreate = 1000000
+			};
+			var id = -1;
 			using (var create = Create.NewContainer())
 			{
 				// Subscribe to the container's creation events for the DTO type,
@@ -32,9 +74,9 @@ namespace FlitBit.Core.Tests.Dto
 				Assert.IsNotNull(my);
 				Assert.AreEqual(id, my.ID);
 
-				Stopwatch time = new Stopwatch();
+				var time = new Stopwatch();
 				time.Start();
-				for (int i = 0; i < test.ItemsToCreate; i++)
+				for (var i = 0; i < test.ItemsToCreate; i++)
 				{
 					var previous = my;
 					my = create.New<IJustAnID>();
@@ -48,47 +90,23 @@ namespace FlitBit.Core.Tests.Dto
 		}
 
 		[TestMethod]
-		public void CanConstructAndMutateDTOs()
-		{
-			var test = new { ItemsToMutate = 1000000 };
-			int id = -1;
-			using (var create = Create.NewContainer())
-			{
-				// our mutator method... it will set the ID's value...
-				var my = create.NewInit<IJustAnID>().Init(new { ID = Interlocked.Increment(ref id) });
-				Assert.IsNotNull(my);
-				Assert.AreEqual(id, my.ID);
-
-				Stopwatch time = new Stopwatch();
-				time.Start();
-				for (int i = 0; i < test.ItemsToMutate; i++)
-				{
-					var previous = my;
-					my = create.NewInit<IJustAnID>().Init(new { ID = Interlocked.Increment(ref id) });
-
-					Assert.IsNotNull(my);
-					Assert.AreNotSame(previous, my);
-					Assert.AreEqual(id, my.ID);
-				}
-				Console.WriteLine(String.Concat("Mutated ", test.ItemsToMutate, " Dto instances in ", time.Elapsed));
-			}
-		}
-
-		[TestMethod]
 		public void DtoSupportsAllNativeTypeProperties()
 		{
-			var test = new { ItemsToCreate = 1000000 };
+			var test = new
+			{
+				ItemsToCreate = 1000000
+			};
 			using (var create = Create.NewContainer())
 			{
-				var gen = Create.New<DataGenerator>();
+				var gen = new DataGenerator();
 				var rand = new Random(Environment.TickCount);
 				var mutation = 0;
 
-				var my = create.New<IAllNativeTypes>();
+				var my = create.New<ISamplingOfTypes>();
 				Assert.IsNotNull(my);
 
 				// Mutate one property per mutation...
-				Func<IContainer, IAllNativeTypes, IAllNativeTypes> mutator = (c, item) =>
+				Func<IContainer, ISamplingOfTypes, ISamplingOfTypes> mutator = (c, item) =>
 				{
 					Assert.AreEqual(my, item, "mutated copy should always be equal to source upon mutator call");
 					switch (mutation)
@@ -127,7 +145,8 @@ namespace FlitBit.Core.Tests.Dto
 									item.Double = @double;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 4:
 							while (true)
 							{
@@ -137,7 +156,8 @@ namespace FlitBit.Core.Tests.Dto
 									item.Decimal = @decimal;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 5:
 							while (true)
 							{
@@ -147,18 +167,19 @@ namespace FlitBit.Core.Tests.Dto
 									item.Float = @float;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 6:
 							while (true)
 							{
-								var @enum = gen.GetEnum<MyEnum>();
-								if (@enum != item.MyEnum)
+								var @enum = gen.GetEnum<MyByteEnum>();
+								if (@enum != item.MyByteEnum)
 								{
-									item.MyEnum = @enum;
+									item.MyByteEnum = @enum;
 									break;
 								}
-
-							} break;
+							}
+							break;
 						case 7:
 							while (true)
 							{
@@ -168,7 +189,8 @@ namespace FlitBit.Core.Tests.Dto
 									item.Guid = @guid;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 8:
 							while (true)
 							{
@@ -178,18 +200,19 @@ namespace FlitBit.Core.Tests.Dto
 									item.String = @string;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 9:
 							while (true)
 							{
-
 								var @sbyte = gen.GetSByte();
 								if (@sbyte != item.SByte)
 								{
 									item.SByte = @sbyte;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 10:
 							while (true)
 							{
@@ -199,7 +222,8 @@ namespace FlitBit.Core.Tests.Dto
 									item.Int16 = @int16;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 11:
 							while (true)
 							{
@@ -209,7 +233,8 @@ namespace FlitBit.Core.Tests.Dto
 									item.Int32 = @int32;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 12:
 							while (true)
 							{
@@ -219,7 +244,8 @@ namespace FlitBit.Core.Tests.Dto
 									item.Int64 = @int64;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 13:
 							while (true)
 							{
@@ -229,7 +255,8 @@ namespace FlitBit.Core.Tests.Dto
 									item.UInt16 = @uint16;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 14:
 							while (true)
 							{
@@ -239,7 +266,8 @@ namespace FlitBit.Core.Tests.Dto
 									item.UInt32 = @uint32;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 15:
 							while (true)
 							{
@@ -249,7 +277,8 @@ namespace FlitBit.Core.Tests.Dto
 									item.UInt64 = @uint64;
 									break;
 								}
-							} break;
+							}
+							break;
 						case 16:
 							while (true)
 							{
@@ -268,7 +297,8 @@ namespace FlitBit.Core.Tests.Dto
 										break;
 									}
 								}
-							} break;
+							}
+							break;
 						case 17:
 							while (true)
 							{
@@ -289,14 +319,15 @@ namespace FlitBit.Core.Tests.Dto
 									item.Int32Arr = gen.GetArray<int>(rand.Next(100));
 									break;
 								}
-							} break;
+							}
+							break;
 					}
 					return item;
 				};
 
-				Stopwatch time = new Stopwatch();
+				var time = new Stopwatch();
 				time.Start();
-				for (int i = 0; i < test.ItemsToCreate; i++)
+				for (var i = 0; i < test.ItemsToCreate; i++)
 				{
 					var previous = my;
 					mutation = i % 16; // cycle through the mutations
@@ -318,7 +349,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -338,7 +369,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -358,7 +389,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -378,7 +409,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreNotEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -398,7 +429,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreNotEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -418,7 +449,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreNotEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -438,7 +469,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreNotEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreNotEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -458,7 +489,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreNotEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -478,7 +509,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreNotEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -498,7 +529,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreNotEqual(previous.SByte, my.SByte);
@@ -518,7 +549,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -538,7 +569,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -558,7 +589,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -578,7 +609,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -598,7 +629,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -618,7 +649,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -638,7 +669,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -658,7 +689,7 @@ namespace FlitBit.Core.Tests.Dto
 							Assert.AreEqual(previous.Double, my.Double);
 							Assert.AreEqual(previous.Decimal, my.Decimal);
 							Assert.AreEqual(previous.Float, my.Float);
-							Assert.AreEqual(previous.MyEnum, my.MyEnum);
+							Assert.AreEqual(previous.MyByteEnum, my.MyByteEnum);
 							Assert.AreEqual(previous.Guid, my.Guid);
 							Assert.AreEqual(previous.String, my.String);
 							Assert.AreEqual(previous.SByte, my.SByte);
@@ -677,6 +708,10 @@ namespace FlitBit.Core.Tests.Dto
 			}
 		}
 
+		[TestInitialize]
+		public void Initialize()
+		{
+			RuntimeAssemblies.WriteDynamicAssemblyOnExit = true;
+		}
 	}
-		
 }
