@@ -8,6 +8,7 @@ using FlitBit.Copy;
 using FlitBit.Core;
 using FlitBit.Dto.Tests.Model;
 using FlitBit.Emit;
+using FlitBit.Wireup;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlitBit.Dto.Tests
@@ -15,6 +16,12 @@ namespace FlitBit.Dto.Tests
 	[TestClass]
 	public class DtoSerializationSupportTests
 	{
+		[TestInitialize]
+		public void Init()
+		{
+			WireupCoordinator.SelfConfigure();
+		}
+
 		[TestMethod]
 		public void CreateAndSerializeRandomValuesOfAllNativeTypes()
 		{

@@ -4,6 +4,7 @@ using System.Threading;
 using FlitBit.Dto.Tests.Model;
 using FlitBit.Emit;
 using FlitBit.IoC;
+using FlitBit.Wireup;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FlitBit.Core.Tests.Dto
@@ -11,6 +12,13 @@ namespace FlitBit.Core.Tests.Dto
 	[TestClass]
 	public class DtoTests
 	{
+		[TestInitialize]
+		public void Init()
+		{
+			RuntimeAssemblies.WriteDynamicAssemblyOnExit = true;
+			WireupCoordinator.SelfConfigure();
+		}
+
 		[TestMethod]
 		public void CanConstructAndMutateDTO()
 		{
@@ -708,10 +716,5 @@ namespace FlitBit.Core.Tests.Dto
 			}
 		}
 
-		[TestInitialize]
-		public void Initialize()
-		{
-			RuntimeAssemblies.WriteDynamicAssemblyOnExit = true;
-		}
 	}
 }

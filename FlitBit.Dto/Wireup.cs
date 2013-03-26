@@ -1,17 +1,16 @@
-﻿using System;
-using FlitBit.Dto;
+﻿using FlitBit.Dto;
 using FlitBit.Wireup;
 using FlitBit.Wireup.Meta;
 
-[assembly: Wireup(typeof(WireupThisAssembly))]
+[assembly: HookWirupCoordinatorTask]
+[assembly: Wireup(typeof(AssemblyWireup))]
 
 namespace FlitBit.Dto
 {
 	/// <summary>
 	///   Wires up this assembly.
 	/// </summary>
-	[CLSCompliant(false)]
-	public sealed class WireupThisAssembly : IWireupCommand
+	public sealed class AssemblyWireup : IWireupCommand
 	{
 		#region IWireupCommand Members
 
@@ -21,9 +20,30 @@ namespace FlitBit.Dto
 		/// <param name="coordinator"></param>
 		public void Execute(IWireupCoordinator coordinator)
 		{
-			// no dependencies... we should remove this if there truly is nothing to do.
 		}
 
 		#endregion
+	}
+
+	/// <summary>
+	///   Wires this module.
+	/// </summary>
+	public class HookWirupCoordinatorTask : WireupTaskAttribute
+	{
+		/// <summary>
+		///   Creates a new instance.
+		/// </summary>
+		public HookWirupCoordinatorTask()
+			: base(WireupPhase.BeforeDependencies) { }
+
+		/// <summary>
+		///   Performs wireup.
+		/// </summary>
+		/// <param name="coordinator"></param>
+		protected override void PerformTask(IWireupCoordinator coordinator)
+		{
+			// Attach the root container as a wireup observer...
+			coordinator.RegisterObserver(DTOWireupObserver.Observer);
+		}
 	}
 }

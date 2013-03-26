@@ -35,20 +35,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FlitBit.Copy, Version=2.7.2.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
+    <Reference Include="FlitBit.Copy, Version=2.7.3.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\FlitBit.Copy.2.7.2\lib\net40\FlitBit.Copy.dll</HintPath>
+      <HintPath>..\..\packages\FlitBit.Copy.2.7.3\lib\net40\FlitBit.Copy.dll</HintPath>
     </Reference>
-    <Reference Include="FlitBit.Core, Version=2.9.2.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\FlitBit.Core.2.9.2\lib\net40\FlitBit.Core.dll</HintPath>
+    <Reference Include="FlitBit.Core, Version=2.10.1.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FlitBit.Core.2.10.1\lib\net40\FlitBit.Core.dll</HintPath>
     </Reference>
     <Reference Include="FlitBit.Emit, Version=2.8.3.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\FlitBit.Emit.2.8.3\lib\net40\FlitBit.Emit.dll</HintPath>
     </Reference>
-    <Reference Include="FlitBit.IoC, Version=2.7.1.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\FlitBit.IoC.2.7.1\lib\net40\FlitBit.IoC.dll</HintPath>
+    <Reference Include="FlitBit.IoC, Version=2.8.1.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FlitBit.IoC.2.8.1\lib\net40\FlitBit.IoC.dll</HintPath>
     </Reference>
     <Reference Include="FlitBit.Wireup, Version=2.5.4.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
       <HintPath>..\..\packages\FlitBit.Wireup.2.5.4\lib\net40\FlitBit.Wireup.dll</HintPath>

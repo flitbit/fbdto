@@ -1,4 +1,3 @@
-﻿using FlitBit.Dto;
-using FlitBit.Wireup.Meta;
+﻿using FlitBit.Wireup.Meta;
 
-[assembly: WireupDependency(typeof(WireupThisAssembly))]
+[assembly: WireupDependency(typeof(FlitBit.Dto.AssemblyWireup))]

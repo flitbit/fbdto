@@ -89,12 +89,8 @@
     <DocumentationFile>bin\Release\FlitBit.Dto.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FlitBit.Copy">
-      <HintPath>..\packages\FlitBit.Copy.2.7.2\lib\net40\FlitBit.Copy.dll</HintPath>
-    </Reference>
-    <Reference Include="FlitBit.Core, Version=2.9.2.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\FlitBit.Core.2.9.2\lib\net40\FlitBit.Core.dll</HintPath>
+    <Reference Include="FlitBit.Core, Version=2.10.1.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
+      <HintPath>..\packages\FlitBit.Core.2.10.1\lib\net40\FlitBit.Core.dll</HintPath>
     </Reference>
     <Reference Include="FlitBit.Emit, Version=2.8.3.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

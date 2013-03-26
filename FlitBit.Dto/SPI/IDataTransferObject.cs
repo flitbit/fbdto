@@ -8,10 +8,7 @@ namespace FlitBit.Dto.SPI
 	///   DTO service provider interface.
 	/// </summary>
 	public interface IDataTransferObject : ICloneable, INotifyPropertyChanged
-	{
-		//TId GetReferentID<TId>(string name);
-		//void SetReferentID<TId>(string name, TId referentID);
-
+	{	
 		/// <summary>
 		///   Gets the object's dirty flags.
 		/// </summary>

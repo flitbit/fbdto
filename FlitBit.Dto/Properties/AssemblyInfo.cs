@@ -10,4 +10,3 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: Guid("b5d4b2ef-a65b-40e3-a3bc-dbf608e86e23")]
 [assembly: NeutralResourcesLanguage("en")]
-[assembly: CLSCompliant(true)]
