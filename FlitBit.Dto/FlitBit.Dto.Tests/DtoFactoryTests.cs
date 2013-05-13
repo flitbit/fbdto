@@ -11,12 +11,7 @@ namespace FlitBit.Dto.Tests
 	[TestClass]
 	public class DtoFactoryTests
 	{
-		/// <summary>
-		///   Gets or sets the test context which provides
-		///   information about and functionality for the current test run.
-		/// </summary>
-		public TestContext TestContext { get; set; }
-
+		
 		[TestMethod]
 		public void DtoFactory_CanCreateInstances()
 		{
@@ -25,10 +20,20 @@ namespace FlitBit.Dto.Tests
 			Assert.IsNotNull(it);
 		}
 
+		public TestContext TestContext { get; set; }
+
 		[TestInitialize]
 		public void Init()
 		{
 			WireupCoordinator.SelfConfigure();
+		}
+
+		[TestCleanup]
+		public void Cleanup()
+		{
+			var report = WireupCoordinator.Instance.ReportWireupHistory();
+			TestContext.WriteLine("---------- Wireup Report ----------");
+			TestContext.WriteLine(report);
 		}
 	}
 }

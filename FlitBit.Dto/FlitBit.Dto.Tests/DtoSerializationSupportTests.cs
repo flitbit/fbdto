@@ -16,10 +16,21 @@ namespace FlitBit.Dto.Tests
 	[TestClass]
 	public class DtoSerializationSupportTests
 	{
+		public TestContext TestContext { get; set; }
+
 		[TestInitialize]
 		public void Init()
 		{
+			RuntimeAssemblies.WriteDynamicAssemblyOnExit = true;
 			WireupCoordinator.SelfConfigure();
+		}
+
+		[TestCleanup]
+		public void Cleanup()
+		{
+			var report = WireupCoordinator.Instance.ReportWireupHistory();
+			TestContext.WriteLine("---------- Wireup Report ----------");
+			TestContext.WriteLine(report);
 		}
 
 		[TestMethod]

@@ -100,7 +100,7 @@ namespace FlitBit.Dto
 					builder.StubMethodsForInterface(intf, true, true);
 				}
 				Func<EmittedField, bool> filter = f => f.FieldType.Target == typeof(PropertyChangedEventHandler);
-				builder.SpecializeEquals(new[] { typeof(T) },  filter, null);
+				builder.SpecializeEquals(new[] {typeof(T)}, filter, null);
 				builder.SpecializeGetHashCode(chashCodeSeed, filter, null);
 				ImplementIDataTransferObject(builder, cctor, props, dirtyFlags);
 

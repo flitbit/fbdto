@@ -1,9 +1,12 @@
-﻿using FlitBit.Dto;
+﻿using FlitBit.Core;
+using FlitBit.Dto;
 using FlitBit.Wireup;
 using FlitBit.Wireup.Meta;
+using FlitBit.Wireup.Recording;
+using AssemblyWireup = FlitBit.Wireup.AssemblyWireup;
 
 [assembly: HookWirupCoordinatorTask]
-[assembly: Wireup(typeof(AssemblyWireup))]
+[assembly: WireupDependency(typeof(AssemblyWireup))]
 
 namespace FlitBit.Dto
 {
@@ -19,8 +22,7 @@ namespace FlitBit.Dto
 		/// </summary>
 		/// <param name="coordinator"></param>
 		public void Execute(IWireupCoordinator coordinator)
-		{
-		}
+		{}
 
 		#endregion
 	}
@@ -34,14 +36,18 @@ namespace FlitBit.Dto
 		///   Creates a new instance.
 		/// </summary>
 		public HookWirupCoordinatorTask()
-			: base(WireupPhase.BeforeDependencies) { }
+			: base(WireupPhase.BeforeDependencies)
+		{}
 
 		/// <summary>
 		///   Performs wireup.
 		/// </summary>
 		/// <param name="coordinator"></param>
-		protected override void PerformTask(IWireupCoordinator coordinator)
+		/// <param name="context"></param>
+		protected override void PerformTask(IWireupCoordinator coordinator, WireupContext context)
 		{
+			context.Sequence.Push(string.Concat("Registering wireup observer: ",
+																					typeof(HookWirupCoordinatorTask).GetReadableFullName()));
 			// Attach the root container as a wireup observer...
 			coordinator.RegisterObserver(DTOWireupObserver.Observer);
 		}

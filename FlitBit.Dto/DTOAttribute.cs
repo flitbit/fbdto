@@ -11,6 +11,7 @@ using FlitBit.Core.Factory;
 using FlitBit.Emit;
 using FlitBit.Wireup;
 using FlitBit.Wireup.Meta;
+using FlitBit.Wireup.Recording;
 
 namespace FlitBit.Dto
 {
@@ -21,31 +22,37 @@ namespace FlitBit.Dto
 	public class DTOAttribute : WireupTaskAttribute
 	{
 		/// <summary>
-		/// Creates a new instance.
+		///   Creates a new instance.
 		/// </summary>
 		public DTOAttribute()
 			: base(WireupPhase.Tasks)
-		{
-		}
+		{}
 
 		/// <summary>
-		/// Placeholder for wireup logic.
+		///   Placeholder for business logic.
 		/// </summary>
-		protected override void PerformTask(Wireup.IWireupCoordinator coordinator)
-		{
-		}
+		protected override void PerformTask(IWireupCoordinator coordinator, WireupContext context)
+		{}
 	}
 
 	internal static class DTOWireupObserver
 	{
-		static readonly MethodInfo ConcreteTypeMethod = typeof(DataTransferObjects).MatchGenericMethod("ConcreteType", BindingFlags.Static | BindingFlags.NonPublic, 1, typeof(Type));
-		
+		public static readonly Guid WireupObserverKey = new Guid("427C4C0A-7F66-47B4-85F4-7C1A4132769D");
+
+		static readonly MethodInfo ConcreteTypeMethod = typeof(DataTransferObjects).MatchGenericMethod("ConcreteType",
+																																																	BindingFlags.Static | BindingFlags.NonPublic, 1, typeof(Type));
+
 		static readonly MethodInfo RegisterMethod = typeof(IFactory).MatchGenericMethod("RegisterImplementationType", 2,
 																																										typeof(void));
-		public static readonly Guid WireupObserverKey = new Guid("427C4C0A-7F66-47B4-85F4-7C1A4132769D");
+
+		static readonly IWireupObserver SingletonObserver = new DtoObserver();
+
+		public static IWireupObserver Observer { get { return SingletonObserver; } }
 
 		class DtoObserver : IWireupObserver
 		{
+			#region IWireupObserver Members
+
 			public void NotifyWireupTask(IWireupCoordinator coordinator, WireupTaskAttribute task, Type target)
 			{
 				var cra = task as DTOAttribute;
@@ -59,13 +66,11 @@ namespace FlitBit.Dto
 			}
 
 			/// <summary>
-			/// Gets the observer's key.
+			///   Gets the observer's key.
 			/// </summary>
 			public Guid ObserverKey { get { return WireupObserverKey; } }
+
+			#endregion
 		}
-
-		readonly static IWireupObserver __observer = new DtoObserver();
-
-		public static IWireupObserver Observer { get { return __observer; } }
 	}
 }

@@ -16,6 +16,23 @@ namespace FlitBit.Dto.Tests
 	[TestClass]
 	public class DtoHashCodeAndEqualityTests
 	{
+		public TestContext TestContext { get; set; }
+		
+		[TestInitialize]
+		public void Init()
+		{
+			RuntimeAssemblies.WriteDynamicAssemblyOnExit = true;
+			WireupCoordinator.SelfConfigure();
+		}
+
+		[TestCleanup]
+		public void Cleanup()
+		{
+			var report = WireupCoordinator.Instance.ReportWireupHistory();
+			TestContext.WriteLine("---------- Wireup Report ----------");
+			TestContext.WriteLine(report);
+		}
+
 		[TestMethod]
 		public void Dto_DtosWithEqualPropertyValuesEvaluateEqual()
 		{
@@ -44,13 +61,6 @@ namespace FlitBit.Dto.Tests
 
 			Assert.AreEqual(orig, other);
 			Assert.AreEqual(orig.GetHashCode(), other.GetHashCode());
-		}
-
-		[TestInitialize]
-		public void Init()
-		{
-			RuntimeAssemblies.WriteDynamicAssemblyOnExit = true;
-			WireupCoordinator.SelfConfigure();
 		}
 	}
 }
