@@ -6,3 +6,4 @@ TestResults/
 *.user
 *.version.cs
 *.log
+*.nupkg
