@@ -18,21 +18,6 @@ namespace FlitBit.Dto.Tests
 	{
 		public TestContext TestContext { get; set; }
 
-		[TestInitialize]
-		public void Init()
-		{
-			RuntimeAssemblies.WriteDynamicAssemblyOnExit = true;
-			WireupCoordinator.SelfConfigure();
-		}
-
-		[TestCleanup]
-		public void Cleanup()
-		{
-			var report = WireupCoordinator.Instance.ReportWireupHistory();
-			TestContext.WriteLine("---------- Wireup Report ----------");
-			TestContext.WriteLine(report);
-		}
-
 		[TestMethod]
 		public void CreateAndSerializeRandomValuesOfAllNativeTypes()
 		{

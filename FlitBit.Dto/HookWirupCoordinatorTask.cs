@@ -3,31 +3,12 @@ using FlitBit.Dto;
 using FlitBit.Wireup;
 using FlitBit.Wireup.Meta;
 using FlitBit.Wireup.Recording;
-using AssemblyWireup = FlitBit.Wireup.AssemblyWireup;
 
 [assembly: HookWirupCoordinatorTask]
-[assembly: WireupDependency(typeof(AssemblyWireup))]
 
 namespace FlitBit.Dto
 {
-	/// <summary>
-	///   Wires up this assembly.
-	/// </summary>
-	public sealed class AssemblyWireup : IWireupCommand
-	{
-		#region IWireupCommand Members
-
-		/// <summary>
-		///   Wires up this assembly.
-		/// </summary>
-		/// <param name="coordinator"></param>
-		public void Execute(IWireupCoordinator coordinator)
-		{}
-
-		#endregion
-	}
-
-	/// <summary>
+  /// <summary>
 	///   Wires this module.
 	/// </summary>
 	public class HookWirupCoordinatorTask : WireupTaskAttribute

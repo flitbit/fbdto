@@ -39,21 +39,21 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\FlitBit.Copy.2.8.0\lib\net40\FlitBit.Copy.dll</HintPath>
     </Reference>
-    <Reference Include="FlitBit.Core, Version=2.11.3.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
+    <Reference Include="FlitBit.Core, Version=2.11.6.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\FlitBit.Core.2.11.3\lib\net40\FlitBit.Core.dll</HintPath>
+      <HintPath>..\..\packages\FlitBit.Core.2.11.6\lib\net40\FlitBit.Core.dll</HintPath>
     </Reference>
-    <Reference Include="FlitBit.Emit, Version=2.8.5.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
+    <Reference Include="FlitBit.Emit, Version=2.8.7.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\FlitBit.Emit.2.8.5\lib\net40\FlitBit.Emit.dll</HintPath>
+      <HintPath>..\..\packages\FlitBit.Emit.2.8.7\lib\net40\FlitBit.Emit.dll</HintPath>
     </Reference>
     <Reference Include="FlitBit.IoC, Version=2.10.0.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\FlitBit.IoC.2.10.0\lib\net40\FlitBit.IoC.dll</HintPath>
     </Reference>
-    <Reference Include="FlitBit.Wireup, Version=3.0.3.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
+    <Reference Include="FlitBit.Wireup, Version=3.1.0.0, Culture=neutral, PublicKeyToken=38f03d0878531ff3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\FlitBit.Wireup.3.0.3\lib\net40\FlitBit.Wireup.dll</HintPath>
+      <HintPath>..\..\packages\FlitBit.Wireup.3.1.0\lib\net40\FlitBit.Wireup.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json">
@@ -70,10 +70,13 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblySetup.cs" />
     <Compile Include="DtoFactoryTests.cs" />
     <Compile Include="DtoHashCodeAndEqualityTests.cs" />
     <Compile Include="DtoSerializationSupportTests.cs" />
     <Compile Include="DtoTests.cs" />
+    <Compile Include="ExternalWireup\Dependency.FlitBit.Dto.cs" />
+    <Compile Include="ExternalWireup\Dependency.FlitBit.Wireup.cs" />
     <Compile Include="Model\Enums.cs" />
     <Compile Include="Model\ExampleModel.cs" />
     <Compile Include="Model\IJustAnID.cs" />
@@ -82,7 +85,6 @@
     <Compile Include="Model\IThing.cs" />
     <Compile Include="Model\Thing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Wireup.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FlitBit.Dto.csproj">
@@ -95,7 +97,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

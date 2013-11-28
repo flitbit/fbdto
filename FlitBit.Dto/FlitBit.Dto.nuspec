@@ -6,11 +6,11 @@
     <title>$title$</title>
     <authors>Phillip Clark</authors>
     <owners>flitbit.org</owners>
-    <licenseUrl>http://fbdto.codeplex.com/license</licenseUrl>
-    <projectUrl>http://fbdto.codeplex.com/</projectUrl>
+    <licenseUrl>https://raw.github.com/flitbit-org/fbdto/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/flitbit-org/fbdto</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Published to CodePlex and packaged for NuGet.</releaseNotes>
+    <releaseNotes>Moved repository to github. Updated core, emit, and wireup.</releaseNotes>
     <copyright>Copyright 2013</copyright>
   </metadata>
 </package>
