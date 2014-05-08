@@ -1,13 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlitBit.Dto", "FlitBit.Dto\FlitBit.Dto.csproj", "{1A6147E2-7AD7-429B-B7B8-8F2AA0D76AE0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlitBit.Dto.Tests", "FlitBit.Dto\FlitBit.Dto.Tests\FlitBit.Dto.Tests.csproj", "{F139FC3E-5797-48EF-B265-274A1A5DD4ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{69FD9AA5-9451-46F2-A4C9-AB01E914B750}"
+	ProjectSection(SolutionItems) = preProject
+		Readme.md = Readme.md
+		Version.targets = Version.targets
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
